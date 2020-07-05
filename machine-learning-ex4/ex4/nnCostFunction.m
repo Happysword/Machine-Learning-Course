@@ -65,7 +65,8 @@ Theta2_grad = zeros(size(Theta2));
 
 %perform FeedForward
 X = [ ones(size(X,1),1) ,X];    % 5000x401
-h1 = sigmoid( X * Theta1');     % 5000x25
+Z1 = X*Theta1';
+h1 = sigmoid(Z1);     % 5000x25
 h1 = [ ones(size(h1,1),1) ,h1]; % 5000x26
 h2 = sigmoid( h1 * Theta2');    % 5000x10
 
@@ -87,8 +88,17 @@ tempTheta2 = Theta2(:,2:end).^2;
 J = J + (  lambda / (2*m) * ( sum(sum(tempTheta1)) + sum(sum(tempTheta2)) ) );
 
 
+%grad Calculations
+del3 = h2 - yMat; % 5000x10
+del2 = sigmoidGradient([ones( size(Z1,1),1 ) Z1]) .* (del3 * Theta2);
+del2 = del2(:,2:end);
 
+Delta1 = del2' * X; %10x401
+Delta2 = del3' * [ones(size(Z1, 1), 1) sigmoid(Z1)];
 
+%regularization
+Theta1_grad = Delta1/m + (lambda/m)*[zeros(size(Theta1,1), 1) Theta1(:, 2:end)];
+Theta2_grad = Delta2/m + (lambda/m)*[zeros(size(Theta2,1), 1) Theta2(:, 2:end)];
 
 
 % -------------------------------------------------------------
